@@ -27,12 +27,13 @@ namespace Cards_Products_API.Services
 
         public async Task<Product> CreateRandomAsync()
         {
+            var Products = new[] { "Laptop", "Smartphone", "Tablet", "Monitor", "Keyboard", "Mouse", "Printer", "Camera", "Headphones", "Speaker" };
+
             // Configurar Bogus para generar un producto
             var faker = new Faker<Product>()
-                .RuleFor(p => p.Name, f => f.Commerce.ProductName())
-                .RuleFor(p => p.Description, f => f.Commerce.ProductDescription())
-                .RuleFor(p => p.Price, f => f.Random.Decimal(10, 500))
-                .RuleFor(p => p.CreatedAt, f => DateTime.UtcNow);
+                .RuleFor(p => p.Product_Name, f => f.PickRandom(Products))
+                .RuleFor(p => p.Quantity, f => f.Random.Int(0, 80))
+                .RuleFor(p => p.Price, f => f.Random.Int(200, 30000));
 
             var product = faker.Generate();
 
