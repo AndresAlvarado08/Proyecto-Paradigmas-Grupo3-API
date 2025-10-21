@@ -14,3 +14,5 @@ use cards_products;
 select * from products;
 
 select * from cards;
+
+select * from purchases;
