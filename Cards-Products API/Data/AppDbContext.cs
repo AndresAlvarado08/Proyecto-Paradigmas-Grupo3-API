@@ -11,5 +11,6 @@ namespace Cards_Products_API.Data
         }
         // Cada DbSet representa una tabla
         public DbSet<Product> Products { get; set; }
+        public DbSet<Card> Cards { get; set; }
     }
 }

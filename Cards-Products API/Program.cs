@@ -1,4 +1,5 @@
 using Cards_Products_API.Data;
+using Cards_Products_API.Interfaces;
 using Cards_Products_API.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICardService, CardService>();
 
 var app = builder.Build();
 

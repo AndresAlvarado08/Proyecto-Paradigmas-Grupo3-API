@@ -1,5 +1,5 @@
-﻿using Cards_Products_API.Models;
-using Cards_Products_API.Services;
+﻿using Cards_Products_API.Interfaces;
+using Cards_Products_API.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cards_Products_API.Controllers
@@ -18,14 +18,14 @@ namespace Cards_Products_API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetAll()
         {
-            var products = await _productService.GetAllAsync();
+            var products = await _productService.GetAllProducts();
             return Ok(products);
         }
 
         [HttpPost("random")]
         public async Task<ActionResult<Product>> CreateRandom()
         {
-            var product = await _productService.CreateRandomAsync();
+            var product = await _productService.CreateRandomProducts();
             return CreatedAtAction(nameof(GetAll), new { id = product.Id }, product);
         }
     }
