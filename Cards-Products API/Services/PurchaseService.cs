@@ -16,7 +16,6 @@ namespace Cards_Products_API.Services
         public async Task<List<PurchaseDTO>> GetAllPurchases()
         {
             return await _context.Purchases
-                .OrderByDescending(p => p.PurchaseDate)
                 .Select(p => new PurchaseDTO
                 {
                     Purchase_Id = p.Purchase_Id,
