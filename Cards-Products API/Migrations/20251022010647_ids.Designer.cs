@@ -4,6 +4,7 @@ using Cards_Products_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cards_Products_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251022010647_ids")]
+    partial class ids
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,9 +45,6 @@ namespace Cards_Products_API.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("Money")
-                        .HasColumnType("int");
-
-                    b.Property<int>("User_Id")
                         .HasColumnType("int");
 
                     b.HasKey("Card_Id");
@@ -83,26 +83,23 @@ namespace Cards_Products_API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Purchase_Id"));
 
-                    b.Property<int>("Card_Id")
+                    b.Property<int>("Amount")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Product_Id")
+                    b.Property<int>("CardId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Total")
-                        .HasColumnType("int");
-
-                    b.Property<int>("User_Id")
-                        .HasColumnType("int");
-
                     b.HasKey("Purchase_Id");
 
-                    b.HasIndex("Card_Id");
+                    b.HasIndex("CardId");
 
-                    b.HasIndex("Product_Id");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("Purchases");
                 });
@@ -111,13 +108,15 @@ namespace Cards_Products_API.Migrations
                 {
                     b.HasOne("Cards_Products_API.Models.Card", "Card")
                         .WithMany()
-                        .HasForeignKey("Card_Id")
+                        .HasForeignKey("CardId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Cards_Products_API.Models.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("Product_Id");
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Card");
 

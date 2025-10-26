@@ -35,6 +35,7 @@ public class CardService : ICardService
         {
             Card_Type = cardType,
             Card_Number = formattedNumber,
+            User_Id = 1,        // Cambiar a relacion en el futuro
             Money = moneyValue,
             Expiration_Date = expiration
         };
