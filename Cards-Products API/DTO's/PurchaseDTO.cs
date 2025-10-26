@@ -3,6 +3,7 @@
     public class PurchaseDTO
     {
         public int Purchase_Id { get; set; }
+        public int Card_Id { get; set; }
         public int Total { get; set; }
         public DateTime PurchaseDate { get; set; }
         public int User_Id { get; set; }

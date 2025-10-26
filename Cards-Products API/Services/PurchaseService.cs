@@ -19,6 +19,7 @@ namespace Cards_Products_API.Services
                 .Select(p => new PurchaseDTO
                 {
                     Purchase_Id = p.Purchase_Id,
+                    Card_Id = p.Card_Id,
                     Total = p.Total,
                     PurchaseDate = p.PurchaseDate,
                     User_Id = p.Card.User_Id
