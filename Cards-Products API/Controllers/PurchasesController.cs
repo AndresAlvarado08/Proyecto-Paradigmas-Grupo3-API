@@ -16,18 +16,10 @@ namespace Cards_Products_API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllPurchases()
         {
             var purchases = await _purchaseService.GetAllPurchases();
-
-            var result = purchases.Select(p => new
-            {
-                CardNumber = p.Card.Card_Number,
-                CardUser = p.Card.User_Id,
-                p.PurchaseDate
-            });
-
-            return Ok(result);
+            return Ok(purchases); // aquí NO debes intentar acceder a .Card
         }
     }
 }
