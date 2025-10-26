@@ -27,6 +27,17 @@ namespace Cards_Products_API.Data
                 .WithOne(d => d.Purchase)
                 .HasForeignKey(d => d.Purchase_Id);
 
+            modelBuilder.Entity<Purchase>()
+                .HasKey(p => p.Purchase_Id);
+
+            modelBuilder.Entity<PurchaseDetail>()
+                .HasOne(d => d.Product)
+                .WithMany()
+                .HasForeignKey(d => d.Product_Id);
+
+            modelBuilder.Entity<PurchaseDetail>()
+                .HasKey(d => d.Purchase_Detail_Id);
+
             base.OnModelCreating(modelBuilder);
         }
     }

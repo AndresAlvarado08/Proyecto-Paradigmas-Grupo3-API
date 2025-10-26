@@ -1,5 +1,6 @@
 ﻿using Cards_Products_API.Interfaces;
 using Cards_Products_API.Models;
+using Cards_Products_API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cards_Products_API.Controllers
@@ -16,10 +17,10 @@ namespace Cards_Products_API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllPurchases()
+        public async Task<IActionResult> GetAll()
         {
             var purchases = await _purchaseService.GetAllPurchases();
-            return Ok(purchases); // aquí NO debes intentar acceder a .Card
+            return Ok(purchases);
         }
     }
 }

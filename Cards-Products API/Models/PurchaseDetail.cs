@@ -6,7 +6,7 @@ namespace Cards_Products_API.Models
     public class PurchaseDetail
     {
         [Key]
-        public int PurchaseDetail_Id { get; set; }
+        public int Purchase_Detail_Id { get; set; }
         [Required]
         public int Purchase_Id { get; set; }
         [Required]
