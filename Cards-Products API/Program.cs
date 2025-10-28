@@ -19,6 +19,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IPurchaseDetailService, PurchaseDetailService>();
+builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICardService, CardService>();
 
@@ -27,33 +29,16 @@ builder.Services.AddQuartz(q =>
 {
     q.UseJobFactory<MicrosoftDependencyInjectionJobFactory>();
 
-    var generateJobKey = new JobKey("GenerateDataJob");
-    var jobKey = new JobKey("PurchaseJob");
-
-    q.AddJob<GenerateDataJob>(opts => opts.WithIdentity(generateJobKey));
-    q.AddJob<PurchaseJob>(opts => opts.WithIdentity(jobKey));
-
-    q.AddTrigger(opts => opts
-        .ForJob(generateJobKey)
-        .WithIdentity("GenerateDataJob-trigger")
-        .WithSimpleSchedule(x => x
-            .WithInterval(TimeSpan.FromSeconds(10))  // cada 10 segundos
-            .WithRepeatCount(5)));                   // se repite 5 veces
-
-    q.AddTrigger(opts => opts
-        .ForJob(jobKey)
-        .WithIdentity("PurchaseJob-trigger")
-        .WithSimpleSchedule(x => x
-            .WithInterval(TimeSpan.FromSeconds(10)) // cada 10 segundos
-            .WithRepeatCount(3)));                  // se repite 3 veces
+    q.AddJob<GenerateDataJob>(opts => opts.WithIdentity("GenerateDataJob").StoreDurably());
+    q.AddJob<PurchaseJob>(opts => opts.WithIdentity("PurchaseJob").StoreDurably());
 });
 
-    builder.Services.AddQuartzHostedService(opt =>
-    {
-        opt.WaitForJobsToComplete = true;
-    });
+builder.Services.AddQuartzHostedService(opt =>
+{
+    opt.WaitForJobsToComplete = true;
+});
 
-    var app = builder.Build();
+var app = builder.Build();
 
     app.UseSwagger();
     app.UseSwaggerUI();

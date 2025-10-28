@@ -4,6 +4,7 @@ using Cards_Products_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cards_Products_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251026192923_purchaseDetail2")]
+    partial class purchaseDetail2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,9 +92,6 @@ namespace Cards_Products_API.Migrations
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Purchase_Detail_Id")
-                        .HasColumnType("int");
-
                     b.Property<int>("Total")
                         .HasColumnType("int");
 
@@ -101,8 +101,6 @@ namespace Cards_Products_API.Migrations
                     b.HasKey("Purchase_Id");
 
                     b.HasIndex("Card_Id");
-
-                    b.HasIndex("Purchase_Detail_Id");
 
                     b.ToTable("Purchases");
                 });
@@ -144,15 +142,7 @@ namespace Cards_Products_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Cards_Products_API.Models.PurchaseDetail", "PurchaseDetail")
-                        .WithMany()
-                        .HasForeignKey("Purchase_Detail_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Card");
-
-                    b.Navigation("PurchaseDetail");
                 });
 
             modelBuilder.Entity("Cards_Products_API.Models.PurchaseDetail", b =>

@@ -40,15 +40,14 @@ namespace Cards_Products_API.Jobs
                 {
                     var purchase = new Purchase
                     {
-                        CardId = card.Id,
-                        ProductId = product.Id,
-                        Amount = product.Price,
+                        User_Id = 1,            // Cambiar a relación con usuario cuando esté implementado
+                        Card_Id = card.Card_Id,
+                        Total = product.Price,
                         PurchaseDate = DateTime.UtcNow
                     };
 
-                    card.Money -= product.Price;
                     _context.Purchases.Add(purchase);
-                    Console.WriteLine($"Compra: Tarjeta {card.Card_Number}, Producto {product.Product_Name}, ${product.Price}");
+                    Console.WriteLine($"Compra: Tarjeta {card.Card_Number}, Producto {product.Product_Name}, ${product.Price}\n");
                 }
             }
 

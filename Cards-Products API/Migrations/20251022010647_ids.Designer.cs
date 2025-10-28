@@ -4,6 +4,7 @@ using Cards_Products_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cards_Products_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251022010647_ids")]
+    partial class ids
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,9 +45,6 @@ namespace Cards_Products_API.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("Money")
-                        .HasColumnType("int");
-
-                    b.Property<int>("User_Id")
                         .HasColumnType("int");
 
                     b.HasKey("Card_Id");
@@ -83,100 +83,44 @@ namespace Cards_Products_API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Purchase_Id"));
 
-                    b.Property<int>("Card_Id")
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CardId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Purchase_Detail_Id")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Total")
-                        .HasColumnType("int");
-
-                    b.Property<int>("User_Id")
-                        .HasColumnType("int");
-
                     b.HasKey("Purchase_Id");
 
-                    b.HasIndex("Card_Id");
+                    b.HasIndex("CardId");
 
-                    b.HasIndex("Purchase_Detail_Id");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("Purchases");
-                });
-
-            modelBuilder.Entity("Cards_Products_API.Models.PurchaseDetail", b =>
-                {
-                    b.Property<int>("Purchase_Detail_Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Purchase_Detail_Id"));
-
-                    b.Property<int>("Product_Id")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Purchase_Id")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SubTotal")
-                        .HasColumnType("int");
-
-                    b.HasKey("Purchase_Detail_Id");
-
-                    b.HasIndex("Product_Id");
-
-                    b.HasIndex("Purchase_Id");
-
-                    b.ToTable("PurchaseDetails");
                 });
 
             modelBuilder.Entity("Cards_Products_API.Models.Purchase", b =>
                 {
                     b.HasOne("Cards_Products_API.Models.Card", "Card")
                         .WithMany()
-                        .HasForeignKey("Card_Id")
+                        .HasForeignKey("CardId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Cards_Products_API.Models.PurchaseDetail", "PurchaseDetail")
+                    b.HasOne("Cards_Products_API.Models.Product", "Product")
                         .WithMany()
-                        .HasForeignKey("Purchase_Detail_Id")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Card");
 
-                    b.Navigation("PurchaseDetail");
-                });
-
-            modelBuilder.Entity("Cards_Products_API.Models.PurchaseDetail", b =>
-                {
-                    b.HasOne("Cards_Products_API.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("Product_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Cards_Products_API.Models.Purchase", "Purchase")
-                        .WithMany("PurchaseDetails")
-                        .HasForeignKey("Purchase_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Product");
-
-                    b.Navigation("Purchase");
-                });
-
-            modelBuilder.Entity("Cards_Products_API.Models.Purchase", b =>
-                {
-                    b.Navigation("PurchaseDetails");
                 });
 #pragma warning restore 612, 618
         }

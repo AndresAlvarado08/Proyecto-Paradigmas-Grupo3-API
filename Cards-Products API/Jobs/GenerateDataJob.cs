@@ -23,14 +23,14 @@ namespace Cards_Products_API.Jobs
             for (int i = 0; i < 5; i++)
             {
                 var card = await _cardService.CreateRandomCard();
-                Console.WriteLine($"Tarjeta creada: {card.Card_Type} - {card.Card_Number}");
+                Console.WriteLine($"Tarjeta creada: {card.Card_Type} - {card.Card_Number}\n");
             }
 
             // Generar 10 productos
             for (int i = 0; i < 10; i++)
             {
                 var product = await _productService.CreateRandomProducts();
-                Console.WriteLine($"Producto creado: {product.Product_Name} - ${product.Price}");
+                Console.WriteLine($"Producto creado: {product.Product_Name} - ${product.Price}\n");
             }
 
             Console.WriteLine("Finalizó GenerateDataJob correctamente.\n\n\n");

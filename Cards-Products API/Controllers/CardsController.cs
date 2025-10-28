@@ -21,12 +21,5 @@ namespace Cards_Products_API.Controllers
             var cards = await _cardService.GetAllCards();
             return Ok(cards);
         }
-
-        [HttpPost("random")]
-        public async Task<ActionResult<Card>> CreateRandom()
-        {
-            var card = await _cardService.CreateRandomCard();
-            return CreatedAtAction(nameof(GetAll), new { id = card.Id }, card);
-        }
     }
 }
