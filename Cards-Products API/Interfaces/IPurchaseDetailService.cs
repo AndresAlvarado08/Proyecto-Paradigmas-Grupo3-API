@@ -6,7 +6,7 @@ namespace Cards_Products_API.Interfaces
     public interface IPurchaseDetailService
     {
         Task<List<PurchaseDetailDTO>> GetAllPurchaseDetails();
-        Task<List<PurchaseDetail>> GetByPurchaseId(int purchaseId);
+        Task<List<PurchaseDetailDTO>> GetPurchaseDetailByPurchaseId(int purchase_Id);
         Task<PurchaseDetail> CreateDetail(PurchaseDetail detail);
     }
 }

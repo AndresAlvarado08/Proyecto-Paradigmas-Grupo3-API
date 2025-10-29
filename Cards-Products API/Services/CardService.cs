@@ -1,6 +1,6 @@
 ﻿using Bogus;
 using System.Text;
-using Cards_Products_API.Data; // Ajusta namespace
+using Cards_Products_API.Data;
 using Cards_Products_API.Models;
 using Cards_Products_API.Interfaces;
 using Microsoft.EntityFrameworkCore;

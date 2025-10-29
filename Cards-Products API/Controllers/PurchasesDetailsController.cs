@@ -24,10 +24,11 @@ namespace Cards_Products_API.Controllers
             return Ok(details);
         }
 
-        [HttpGet("purchase/{purchaseId}")]
-        public async Task<IActionResult> GetByPurchase(int purchaseId)
+        [HttpGet("purchaseDetails/{purchaseId}")]
+        public async Task<IActionResult> GetDetailsByPurchaseId(int purchaseId)
         {
-            var details = await _service.GetByPurchaseId(purchaseId);
+            var details = await _service.GetPurchaseDetailByPurchaseId(purchaseId);
+            if (details == null || !details.Any()) return NotFound();
             return Ok(details);
         }
 
@@ -35,7 +36,7 @@ namespace Cards_Products_API.Controllers
         public async Task<IActionResult> Create(PurchaseDetail detail)
         {
             var created = await _service.CreateDetail(detail);
-            return CreatedAtAction(nameof(GetByPurchase), new { purchaseId = detail.Purchase_Id }, created);
+            return CreatedAtAction(nameof(GetDetailsByPurchaseId), new { purchaseId = detail.Purchase_Id }, created);
         }
     }
 }

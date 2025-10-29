@@ -18,6 +18,8 @@ namespace Cards_Products_API.Models
         [Required]
         public int Quantity { get; set; }
         [Required]
-        public int SubTotal { get; set; }
+        public int Total { get; set; }
+        [Required]
+        public DateTime Purchase_Date { get; set; }
     }
 }

@@ -7,6 +7,7 @@ namespace Cards_Products_API.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         // Cada DbSet representa una tabla
+        public DbSet<User> Users { get; set; }
         public DbSet<Card> Cards { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Purchase> Purchases { get; set; }

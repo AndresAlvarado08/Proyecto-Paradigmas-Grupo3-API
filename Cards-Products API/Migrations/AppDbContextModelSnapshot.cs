@@ -86,23 +86,23 @@ namespace Cards_Products_API.Migrations
                     b.Property<int>("Card_Id")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("PurchaseDate")
+                    b.Property<DateTime>("Purchase_Date")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Purchase_Detail_Id")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Total")
+                    b.Property<int>("SubTotal")
                         .HasColumnType("int");
 
                     b.Property<int>("User_Id")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("User_Id1")
                         .HasColumnType("int");
 
                     b.HasKey("Purchase_Id");
 
                     b.HasIndex("Card_Id");
 
-                    b.HasIndex("Purchase_Detail_Id");
+                    b.HasIndex("User_Id1");
 
                     b.ToTable("Purchases");
                 });
@@ -118,13 +118,16 @@ namespace Cards_Products_API.Migrations
                     b.Property<int>("Product_Id")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("Purchase_Date")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("Purchase_Id")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("SubTotal")
+                    b.Property<int>("Total")
                         .HasColumnType("int");
 
                     b.HasKey("Purchase_Detail_Id");
@@ -136,6 +139,39 @@ namespace Cards_Products_API.Migrations
                     b.ToTable("PurchaseDetails");
                 });
 
+            modelBuilder.Entity("Cards_Products_API.Models.User", b =>
+                {
+                    b.Property<int>("User_Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("User_Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("First_Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Last_Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("User_Id");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("Cards_Products_API.Models.Purchase", b =>
                 {
                     b.HasOne("Cards_Products_API.Models.Card", "Card")
@@ -144,15 +180,11 @@ namespace Cards_Products_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Cards_Products_API.Models.PurchaseDetail", "PurchaseDetail")
-                        .WithMany()
-                        .HasForeignKey("Purchase_Detail_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Cards_Products_API.Models.User", null)
+                        .WithMany("Purchases")
+                        .HasForeignKey("User_Id1");
 
                     b.Navigation("Card");
-
-                    b.Navigation("PurchaseDetail");
                 });
 
             modelBuilder.Entity("Cards_Products_API.Models.PurchaseDetail", b =>
@@ -177,6 +209,11 @@ namespace Cards_Products_API.Migrations
             modelBuilder.Entity("Cards_Products_API.Models.Purchase", b =>
                 {
                     b.Navigation("PurchaseDetails");
+                });
+
+            modelBuilder.Entity("Cards_Products_API.Models.User", b =>
+                {
+                    b.Navigation("Purchases");
                 });
 #pragma warning restore 612, 618
         }

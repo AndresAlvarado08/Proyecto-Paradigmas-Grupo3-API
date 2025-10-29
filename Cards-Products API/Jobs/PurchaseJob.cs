@@ -1,7 +1,6 @@
-﻿using Quartz;
-using Cards_Products_API.Services;
-using Cards_Products_API.Data;
+﻿using Cards_Products_API.Data;
 using Cards_Products_API.Models;
+using Quartz;
 using Bogus;
 
 namespace Cards_Products_API.Jobs
@@ -20,39 +19,62 @@ namespace Cards_Products_API.Jobs
         {
             Console.WriteLine("Ejecutando PurchaseJob...");
 
-            // Obtener todas las tarjetas y productos existentes
             var cards = _context.Cards.ToList();
             var products = _context.Products.ToList();
 
             if (!cards.Any() || !products.Any())
             {
-                Console.WriteLine("No hay tarjetas o productos disponibles para realizar compras");
+                Console.WriteLine("No hay tarjetas o productos disponibles para realizar compras.");
                 return;
             }
 
-            // Realizar 5 compras
-            for (int i = 0; i < 5; i++)
+            // Generar entre 3 y 5 compras
+            int totalPurchases = _faker.Random.Int(3, 5);
+
+            for (int i = 0; i < totalPurchases; i++)
             {
                 var card = _faker.PickRandom(cards);
-                var purchaseProducts = _faker.PickRandom(products, _faker.Random.Int(1, 3));
+                var numProducts = _faker.Random.Int(1, 3);
+                var selectedProducts = _faker.PickRandom(products, numProducts);
 
-                foreach (var product in purchaseProducts)
+                // Calcular subtotal de la compra
+                int subtotal = selectedProducts.Sum(p => p.Price);
+
+                // Crear la compra
+                var purchase = new Purchase
                 {
-                    var purchase = new Purchase
+                    Card_Id = card.Card_Id,
+                    SubTotal = subtotal,
+                    Purchase_Date = DateTime.UtcNow
+                };
+
+                _context.Purchases.Add(purchase);
+                await _context.SaveChangesAsync();
+
+                Console.WriteLine($"Compra creada: Purchase_Id={purchase.Purchase_Id}, SubTotal=${subtotal}");
+
+                // Crear detalles para cada producto comprado
+                foreach (var product in selectedProducts)
+                {
+                    int quantity = _faker.Random.Int(1, 5);
+
+                    var detail = new PurchaseDetail
                     {
-                        User_Id = 1,            // Cambiar a relación con usuario cuando esté implementado
-                        Card_Id = card.Card_Id,
-                        Total = product.Price,
-                        PurchaseDate = DateTime.UtcNow
+                        Purchase_Id = purchase.Purchase_Id,
+                        Product_Id = product.Product_Id,
+                        Quantity = quantity,
+                        Total = product.Price * quantity
                     };
 
-                    _context.Purchases.Add(purchase);
-                    Console.WriteLine($"Compra: Tarjeta {card.Card_Number}, Producto {product.Product_Name}, ${product.Price}\n");
+                    _context.PurchaseDetails.Add(detail);
+                    Console.WriteLine($"Detalle: Producto={product.Product_Name}, Cantidad={quantity}, Subtotal=${detail.Total}");
                 }
+
+                await _context.SaveChangesAsync();
+                Console.WriteLine($"Detalles generados para Purchase_Id={purchase.Purchase_Id}\n");
             }
 
-            await _context.SaveChangesAsync();
-            Console.WriteLine("Finalizó PurchaseJob correctamente.\n\n\n");
+            Console.WriteLine("Finalizó PurchaseJob correctamente.\n\n");
         }
     }
 }

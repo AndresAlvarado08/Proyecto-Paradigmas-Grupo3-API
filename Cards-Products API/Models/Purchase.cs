@@ -8,19 +8,20 @@ namespace Cards_Products_API.Models
     {
         [Key, Required]
         public int Purchase_Id { get; set; } //Llave Primaria
-        [AllowNull]
-        public int User_Id { get; set; } //Llave Foranea
-        public int Card_Id { get; set; } //Llave Foranea
 
         //Navigation Properties
         [ForeignKey(nameof(Card_Id))]
+        public int Card_Id { get; set; } //Llave Foranea
         public Card? Card { get; set; }
+        //[ForeignKey(nameof(User_Id))]    //PONER RELACION EN FUTURO
+        public int User_Id { get; set; } //Llave Foranea
+        //public User? User { get; set; }   //PONER RELACION EN EL FUTURO
         public ICollection<PurchaseDetail>? PurchaseDetails { get; set; }
 
         //Purchase Details
         [Required]
-        public int Total { get; set; }
+        public int SubTotal { get; set; }
         [Required]
-        public DateTime PurchaseDate { get; set; }
+        public DateTime Purchase_Date { get; set; }
     }
 }
