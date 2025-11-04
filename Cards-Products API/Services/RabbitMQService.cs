@@ -43,7 +43,7 @@ public class RabbitMQService : IDisposable
             body: body
         );
 
-        Console.WriteLine($"📤 Compra publicada: {mensaje}");
+        Console.WriteLine($"Compra publicada: {mensaje}");
     }
 
     public void Dispose()

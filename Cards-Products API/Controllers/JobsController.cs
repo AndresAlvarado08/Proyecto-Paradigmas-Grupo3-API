@@ -38,7 +38,7 @@ namespace Cards_Products_API.Controllers
 
             return Ok("GenerateDataJob disparado!");
         }
-        
+
         [HttpPost("purchase")]
         public async Task<IActionResult> RunPurchaseJob()
         {
