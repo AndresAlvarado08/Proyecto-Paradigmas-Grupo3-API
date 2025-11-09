@@ -88,13 +88,13 @@ namespace Cards_Products_API.Jobs
                     user_Id = card.User_Id  // Asumiendo que Card tiene User_Id
                 };
 
-                try
-                {
+            try
+            {
                     _rabbitMQ.PublicarCompra(compraParaRabbit);
                     Console.WriteLine($"Compra publicada a RabbitMQ: Purchase_Id={purchase.Purchase_Id}");
-                }
+            }
                 catch (Exception ex)
-                {
+            {
                     Console.WriteLine($"Error publicando a RabbitMQ: {ex.Message}");
                     // No lanzar excepción para no detener el proceso
                 }
