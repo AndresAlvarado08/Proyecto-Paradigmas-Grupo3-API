@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Cards_Products_API.Services;
 using Quartz;
 
 namespace Cards_Products_API.Controllers
@@ -8,11 +9,16 @@ namespace Cards_Products_API.Controllers
     public class JobsController : ControllerBase
     {
         private readonly ISchedulerFactory _schedulerFactory;
+        private readonly RabbitMQService _rabbitMQ;
 
-        public JobsController(ISchedulerFactory schedulerFactory)
+        public JobsController(
+            ISchedulerFactory schedulerFactory,
+            RabbitMQService rabbitMQ)  // ← Agregar parámetro
         {
             _schedulerFactory = schedulerFactory;
+            _rabbitMQ = rabbitMQ;  // ← Inicializar
         }
+
 
         [HttpPost("generateData")]
         public async Task<IActionResult> RunGenerateDataJob()

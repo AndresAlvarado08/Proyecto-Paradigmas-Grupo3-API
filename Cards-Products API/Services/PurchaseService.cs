@@ -20,8 +20,8 @@ namespace Cards_Products_API.Services
                 {
                     Purchase_Id = p.Purchase_Id,
                     Card_Id = p.Card_Id,
-                    Total = p.Total,
-                    PurchaseDate = p.PurchaseDate,
+                    SubTotal = p.SubTotal,
+                    Purchase_Date = p.Purchase_Date,
                     User_Id = p.Card.User_Id
                 })
                 .ToListAsync();

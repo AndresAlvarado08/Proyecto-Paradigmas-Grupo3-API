@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Cards_Products_API.Models
@@ -7,8 +8,9 @@ namespace Cards_Products_API.Models
     {
         [Key, Required]
         public int Card_Id { get; set; } //Llave Primaria
-        [AllowNull]
+        //[ForeignKey(nameof(User_Id))]    //PONER RELACION EN FUTURO
         public int User_Id { get; set; } //Llave Foranea
+        //public User User { get; set; }   //PONER RELACION EN FUTURO
         [Required]
         public string Card_Type { get; set; } = string.Empty;
         [Required]
