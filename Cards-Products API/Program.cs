@@ -2,9 +2,12 @@ using Cards_Products_API.Data;
 using Cards_Products_API.Interfaces;
 using Cards_Products_API.Jobs;
 using Cards_Products_API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Quartz.Simpl;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Quartz;
+using Quartz.Simpl;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +30,49 @@ builder.Services.AddScoped<ICardService, CardService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PurchaseDetailJob>();
 
+//Configuracion de Keycloak
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        options.MetadataAddress = "http://26.9.80.46:8080/realms/Paradigmas/.well-known/openid-configuration";
+        options.Authority = "http://26.9.80.46:8080/realms/Paradigmas";
+        options.Audience = "payment-api";
+        options.RequireHttpsMetadata = false;
+    });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = " API", Version = "v1" });
+
+    // Configure Swagger to use JWT Bearer authentication
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+                }
+        });
+});
+
 // Quartz Job
 builder.Services.AddQuartz(q =>
 {
@@ -47,8 +93,10 @@ var app = builder.Build();
     app.UseSwaggerUI();
     
     app.UseHttpsRedirection();
+
+    app.UseAuthorization();
     app.UseAuthorization();
 
-    app.MapControllers();
+app.MapControllers();
 
     app.Run();
