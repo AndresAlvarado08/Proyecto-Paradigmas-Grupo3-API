@@ -18,7 +18,7 @@ namespace Cards_Products_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PurchaseDetailDTO>>> GetPurchaseDetails()
+        public async Task<ActionResult<IEnumerable<GetPurchaseDetailDTO>>> GetPurchaseDetails()
         {
             var details = await _service.GetAllPurchaseDetails();
             return Ok(details);

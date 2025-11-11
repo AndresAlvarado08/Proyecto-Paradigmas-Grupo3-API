@@ -32,10 +32,10 @@ builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICardService, CardService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<PurchaseDetailJob>();
 
 //Configuracion de Keycloak
-
 builder.Services.AddHttpClient();
 
 builder.Services.AddAuthentication("Bearer")

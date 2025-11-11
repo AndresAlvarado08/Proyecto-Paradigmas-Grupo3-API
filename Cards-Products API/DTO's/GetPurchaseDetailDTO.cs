@@ -1,4 +1,4 @@
-﻿public class PurchaseDetailDTO
+﻿public class GetPurchaseDetailDTO
 {
     public int Purchase_Detail_Id { get; set; }
     public DateOnly Purchase_Date { get; set; }
