@@ -1,7 +1,7 @@
-﻿public class PurchaseDetailDTO
+﻿public class GetPurchaseDetailDTO
 {
     public int Purchase_Detail_Id { get; set; }
-    public DateTime Purchase_Date { get; set; }
+    public DateOnly Purchase_Date { get; set; }
     public int User_Id { get; set; }
 
     public List<DetalleCompraDTO> Detalle_Compra { get; set; }

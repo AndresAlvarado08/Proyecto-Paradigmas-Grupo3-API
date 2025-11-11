@@ -49,7 +49,7 @@ namespace Cards_Products_API.Jobs
                     Card_Id = card.Card_Id,
                     User_Id = card.User_Id,
                     SubTotal = subtotal,
-                    Purchase_Date = DateTime.UtcNow
+                    Purchase_Date = DateOnly.FromDateTime(DateTime.Now)
                 };
 
                 _context.Purchases.Add(purchase);

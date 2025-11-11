@@ -15,7 +15,7 @@ namespace Cards_Products_API.Services
             _context = context;
         }
 
-        public async Task<List<PurchaseDetailDTO>> GetAllPurchaseDetails()
+        public async Task<List<GetPurchaseDetailDTO>> GetAllPurchaseDetails()
         {
             var purchases = await _context.Purchases
                 .Include(p => p.Card)
@@ -24,15 +24,15 @@ namespace Cards_Products_API.Services
                 .ToListAsync();
 
             if (!purchases.Any())
-                return new List<PurchaseDetailDTO>();
+                return new List<GetPurchaseDetailDTO>();
 
-            var result = new List<PurchaseDetailDTO>();
+            var result = new List<GetPurchaseDetailDTO>();
 
             foreach (var purchase in purchases)
             {
                 foreach (var detail in purchase.PurchaseDetails)
                 {
-                    result.Add(new PurchaseDetailDTO
+                    result.Add(new GetPurchaseDetailDTO
                     {
                         Purchase_Detail_Id = detail.Purchase_Detail_Id,
                         Purchase_Date = purchase.Purchase_Date,
@@ -56,7 +56,7 @@ namespace Cards_Products_API.Services
             return result;
         }
 
-        public async Task<List<PurchaseDetailDTO>> GetPurchaseDetailByPurchaseId(int purchase_Id)
+        public async Task<List<GetPurchaseDetailDTO>> GetPurchaseDetailByPurchaseId(int purchase_Id)
         {
             var purchase = await _context.Purchases
                 .Include(p => p.Card)
@@ -65,9 +65,9 @@ namespace Cards_Products_API.Services
                 .FirstOrDefaultAsync(p => p.Purchase_Id == purchase_Id);
 
             if (purchase == null)
-                return new List<PurchaseDetailDTO>();
+                return new List<GetPurchaseDetailDTO>();
 
-            return purchase.PurchaseDetails.Select(d => new PurchaseDetailDTO
+            return purchase.PurchaseDetails.Select(d => new GetPurchaseDetailDTO
             {
                 Purchase_Detail_Id = d.Purchase_Detail_Id,
                 Purchase_Date = purchase.Purchase_Date,
