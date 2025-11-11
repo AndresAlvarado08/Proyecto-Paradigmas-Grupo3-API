@@ -3,6 +3,7 @@ using Cards_Products_API.Data;
 using Cards_Products_API.Models;
 using Microsoft.EntityFrameworkCore;
 using Bogus;
+using Cards_Products_API.DTO_s;
 
 namespace Cards_Products_API.Services
 {
@@ -36,6 +37,21 @@ namespace Cards_Products_API.Services
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
+            return product;
+        }
+
+        public async Task<Product?> UpdateProduct(int productId, UpdateProductDTO dto)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null) return null;
+
+            if (dto.Price.HasValue)
+                product.Price = dto.Price.Value;
+
+            if (dto.Quantity.HasValue)
+                product.Quantity = dto.Quantity.Value;
+
+            await _context.SaveChangesAsync();
             return product;
         }
     }

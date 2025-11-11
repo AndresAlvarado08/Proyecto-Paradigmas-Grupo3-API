@@ -20,6 +20,6 @@ namespace Cards_Products_API.Models
         [Required]
         public int Total { get; set; }
         [Required]
-        public DateTime Purchase_Date { get; set; }
+        public DateOnly Purchase_Date { get; set; }
     }
 }

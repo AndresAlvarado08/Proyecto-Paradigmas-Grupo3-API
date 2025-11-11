@@ -18,6 +18,6 @@ namespace Cards_Products_API.Models
         [Required]
         public int Money { get; set; }
         [Required]
-        public DateTime Expiration_Date { get; set; }
+        public DateOnly Expiration_Date { get; set; }
     }
 }

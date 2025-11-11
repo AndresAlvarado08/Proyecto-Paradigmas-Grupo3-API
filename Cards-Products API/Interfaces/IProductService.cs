@@ -1,4 +1,5 @@
-﻿using Cards_Products_API.Models;
+﻿using Cards_Products_API.DTO_s;
+using Cards_Products_API.Models;
 
 namespace Cards_Products_API.Interfaces
 {
@@ -6,5 +7,6 @@ namespace Cards_Products_API.Interfaces
     {
         Task<IEnumerable<Product>> GetAllProducts();
         Task<Product> CreateRandomProducts();
+        Task<Product> UpdateProduct(int productId, UpdateProductDTO dto);
     }
 }
