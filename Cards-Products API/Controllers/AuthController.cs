@@ -1,4 +1,4 @@
-﻿using Cards_Products_API.Models;
+﻿using Cards_Products_API.DTO_s;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 
@@ -16,7 +16,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginUser model)
+    public async Task<IActionResult> Login([FromBody] LoginUserDTO model)
     {
         var client = _httpClientFactory.CreateClient();
 
