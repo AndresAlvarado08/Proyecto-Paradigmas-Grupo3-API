@@ -1,9 +1,10 @@
 ﻿using Bogus;
 using System.Text;
-using Cards_Products_API.Data; // Ajusta namespace
+using Cards_Products_API.Data;
 using Cards_Products_API.Models;
 using Cards_Products_API.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Cards_Products_API.DTO_s;
 
 public class CardService : ICardService
 {
@@ -35,6 +36,7 @@ public class CardService : ICardService
         {
             Card_Type = cardType,
             Card_Number = formattedNumber,
+            User_Id = 1,        // Cambiar a relacion en el futuro
             Money = moneyValue,
             Expiration_Date = expiration
         };
@@ -163,26 +165,40 @@ public class CardService : ICardService
     }
 
     // Genera la Expiration Date como último día del mes y 23:59:59 UTC
-    private DateTime GenerateExpirationDate(bool expired, Faker faker)
+    private DateOnly GenerateExpirationDate(bool expired, Faker faker)
     {
         if (expired)
         {
             // Fecha pasada: entre 1 mes y 5 años en el pasado
-            // Elegimos año y mes pasado
-            var past = faker.Date.Past(5);
+            var past = faker.Date.Past(5); // DateTime
             int year = past.Year;
             int month = past.Month;
-            var lastDay = DateTime.DaysInMonth(year, month);
-            return new DateTime(year, month, lastDay, 23, 59, 59, DateTimeKind.Utc);
+            int lastDay = DateTime.DaysInMonth(year, month);
+            return new DateOnly(year, month, lastDay);
         }
         else
         {
             // Futuro: entre 1 mes y 5 años en el futuro
-            var future = faker.Date.Future(5, DateTime.UtcNow.AddMonths(1));
+            var future = faker.Date.Future(5, DateTime.UtcNow.AddMonths(1)); // DateTime
             int year = future.Year;
             int month = future.Month;
-            var lastDay = DateTime.DaysInMonth(year, month);
-            return new DateTime(year, month, lastDay, 23, 59, 59, DateTimeKind.Utc);
+            int lastDay = DateTime.DaysInMonth(year, month);
+            return new DateOnly(year, month, lastDay);
         }
+    }
+
+    public async Task<Card?> UpdateCard(int cardId, UpdateCardDTO dto)
+    {
+        var card = await _context.Cards.FindAsync(cardId);
+        if (card == null) return null;
+
+        if (dto.Money.HasValue)
+            card.Money = dto.Money.Value;
+
+        if (dto.Expiration_Date.HasValue)
+            card.Expiration_Date = dto.Expiration_Date.Value;
+
+        await _context.SaveChangesAsync();
+        return card;
     }
 }

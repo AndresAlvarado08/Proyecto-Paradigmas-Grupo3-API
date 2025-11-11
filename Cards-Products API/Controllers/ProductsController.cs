@@ -1,4 +1,5 @@
-﻿using Cards_Products_API.Interfaces;
+﻿using Cards_Products_API.DTO_s;
+using Cards_Products_API.Interfaces;
 using Cards_Products_API.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,11 +23,12 @@ namespace Cards_Products_API.Controllers
             return Ok(products);
         }
 
-        [HttpPost("random")]
-        public async Task<ActionResult<Product>> CreateRandom()
+        [HttpPut("{productId}")]
+        public async Task<IActionResult> UpdateProduct(int productId, [FromBody] UpdateProductDTO dto)
         {
-            var product = await _productService.CreateRandomProducts();
-            return CreatedAtAction(nameof(GetAll), new { id = product.Id }, product);
+            var updatedProduct = await _productService.UpdateProduct(productId, dto);
+            if (updatedProduct == null) return NotFound($"Product with ID {productId} not found.");
+            return Ok(updatedProduct);
         }
     }
 }

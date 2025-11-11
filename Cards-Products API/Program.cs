@@ -2,9 +2,12 @@ using Cards_Products_API.Data;
 using Cards_Products_API.Interfaces;
 using Cards_Products_API.Jobs;
 using Cards_Products_API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Quartz.Simpl;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Quartz;
+using Quartz.Simpl;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,52 +18,89 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-// Add services to the container.
-builder.Services.AddControllers();
+// Agregar servicios
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new ConvertDateOnly());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<RabbitMQService>();
+builder.Services.AddScoped<IPurchaseDetailService, PurchaseDetailService>();
+builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICardService, CardService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<PurchaseDetailJob>();
+
+//Configuracion de Keycloak
+builder.Services.AddHttpClient();
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer(options =>
+    {
+        options.MetadataAddress = "http://26.9.80.46:8080/realms/Paradigmas/.well-known/openid-configuration";
+        options.Authority = "http://26.9.80.46:8080/realms/Paradigmas";
+        options.Audience = "payment-api";
+        options.RequireHttpsMetadata = false;
+    });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = " API", Version = "v1" });
+
+    // Configure Swagger to use JWT Bearer authentication
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+                }
+        });
+});
 
 // Quartz Job
 builder.Services.AddQuartz(q =>
 {
     q.UseJobFactory<MicrosoftDependencyInjectionJobFactory>();
 
-    var generateJobKey = new JobKey("GenerateDataJob");
-    var jobKey = new JobKey("PurchaseJob");
-
-    q.AddJob<GenerateDataJob>(opts => opts.WithIdentity(generateJobKey));
-    q.AddJob<PurchaseJob>(opts => opts.WithIdentity(jobKey));
-
-    q.AddTrigger(opts => opts
-        .ForJob(generateJobKey)
-        .WithIdentity("GenerateDataJob-trigger")
-        .WithSimpleSchedule(x => x
-            .WithInterval(TimeSpan.FromSeconds(10))  // cada 10 segundos
-            .WithRepeatCount(5)));                   // se repite 5 veces
-
-    q.AddTrigger(opts => opts
-        .ForJob(jobKey)
-        .WithIdentity("PurchaseJob-trigger")
-        .WithSimpleSchedule(x => x
-            .WithInterval(TimeSpan.FromSeconds(10)) // cada 10 segundos
-            .WithRepeatCount(3)));                  // se repite 3 veces
+    q.AddJob<GenerateDataJob>(opts => opts.WithIdentity("GenerateDataJob").StoreDurably());
+    q.AddJob<PurchaseJob>(opts => opts.WithIdentity("PurchaseJob").StoreDurably());
 });
 
-    builder.Services.AddQuartzHostedService(opt =>
-    {
-        opt.WaitForJobsToComplete = true;
-    });
+builder.Services.AddQuartzHostedService(opt =>
+{
+    opt.WaitForJobsToComplete = true;
+});
 
-    var app = builder.Build();
+var app = builder.Build();
 
     app.UseSwagger();
     app.UseSwaggerUI();
     
     app.UseHttpsRedirection();
+
+    app.UseAuthorization();
     app.UseAuthorization();
 
-    app.MapControllers();
+app.MapControllers();
 
     app.Run();

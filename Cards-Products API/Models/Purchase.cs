@@ -1,19 +1,26 @@
-﻿namespace Cards_Products_API.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Cards_Products_API.Models
 {
     public class Purchase
     {
-        public int Id { get; set; }
-
-        //FK Keys
-        public int CardId { get; set; }
-        public int ProductId { get; set; }
+        [Key, Required]
+        public int Purchase_Id { get; set; } //Llave Primaria
 
         //Navigation Properties
+        [ForeignKey(nameof(Card_Id))]
+        public int Card_Id { get; set; } //Llave Foranea
         public Card? Card { get; set; }
-        public Product? Product { get; set; }
+        //[ForeignKey(nameof(User_Id))]    //PONER RELACION EN FUTURO
+        public int User_Id { get; set; } //Llave Foranea
+        //public User? User { get; set; }   //PONER RELACION EN EL FUTURO
+        public ICollection<PurchaseDetail>? PurchaseDetails { get; set; }
 
         //Purchase Details
-        public int Amount { get; set; }
-        public DateTime PurchaseDate { get; set; }
+        [Required]
+        public int SubTotal { get; set; }
+        [Required]
+        public DateOnly Purchase_Date { get; set; }
     }
 }
