@@ -28,7 +28,7 @@ public class CardService : ICardService
         var rawNumber = GenerateCardNumberByType(cardType, faker); // sin formato
         var formattedNumber = formatWithSpaces ? FormatCardNumber(rawNumber, cardType) : rawNumber;
 
-        var moneyValue = faker.Finance.Random.Int(500, 20000);
+        var moneyValue = faker.Finance.Random.Int(100000, 300000);
         var expired = faker.Random.Double() < probabilityExpired; // true => generar vencida
         var expiration = GenerateExpirationDate(expired, faker);
 
@@ -200,5 +200,41 @@ public class CardService : ICardService
 
         await _context.SaveChangesAsync();
         return card;
+    }
+
+    public async Task<List<UpdateMoneyCard>> IncreaseCardMoney()
+    {
+        const int amount = 30000; // monto fijo a aumentar
+        const int count = 10;     // cantidad de tarjetas con menor saldo
+
+        // Tomar las 10 tarjetas con menor saldo
+        var cards = await _context.Cards
+            .OrderBy(c => c.Money)
+            .Take(count)
+            .ToListAsync();
+
+        if (cards == null || !cards.Any())
+            return new List<UpdateMoneyCard>();
+
+        var results = new List<UpdateMoneyCard>();
+
+        foreach (var card in cards)
+        {
+            int previous = card.Money;
+
+            // Aumentar el saldo
+            card.Money += amount;
+
+            results.Add(new UpdateMoneyCard
+            {
+                Card_Id = card.Card_Id,
+                Previous_Balance = previous,
+                New_Balance = card.Money
+            });
+        }
+
+        await _context.SaveChangesAsync();
+
+        return results;
     }
 }

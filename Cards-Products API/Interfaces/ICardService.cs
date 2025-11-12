@@ -7,6 +7,7 @@ namespace Cards_Products_API.Interfaces
     {
         Task<IEnumerable<Card>> GetAllCards();
         Task<Card> CreateRandomCard(double probabilityExpired = 0.35, bool formatWithSpaces = true);
+        Task<List<UpdateMoneyCard>> IncreaseCardMoney();
         Task<Card?> UpdateCard(int cardId, UpdateCardDTO dto);
     }
 }
