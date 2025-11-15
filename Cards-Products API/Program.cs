@@ -110,6 +110,18 @@ builder.Services.AddQuartzHostedService(opt =>
     opt.WaitForJobsToComplete = true;
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173", "https://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
     app.UseSwagger();
@@ -117,7 +129,9 @@ var app = builder.Build();
     
     app.UseHttpsRedirection();
 
-    app.UseAuthorization();
+app.UseCors("AllowFrontend");
+
+app.UseAuthorization();
     app.UseAuthorization();
 
 app.MapControllers();
