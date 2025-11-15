@@ -8,9 +8,12 @@ namespace Cards_Products_API.Services
     public class PurchaseService : IPurchaseService
     {
         private readonly AppDbContext _context;
-        public PurchaseService(AppDbContext context)
+        private readonly ILogger<PurchaseService> _logger;
+
+        public PurchaseService(AppDbContext context, ILogger<PurchaseService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<List<PurchaseDTO>> GetAllPurchases()

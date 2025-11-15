@@ -8,7 +8,8 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://26.166.216.244:4317"
       }
     },
     "https": {
@@ -18,7 +19,8 @@
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:5001;https://26.247.190.40:5001",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://26.166.216.244:4317"
       }
     }
   }

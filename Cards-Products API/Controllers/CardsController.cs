@@ -23,6 +23,17 @@ namespace Cards_Products_API.Controllers
             return Ok(cards);
         }
 
+        [HttpPost("increase-money")]
+        public async Task<IActionResult> IncreaseCardMoney()
+        {
+            var updatedCards = await _cardService.IncreaseCardMoney();
+
+            if (!updatedCards.Any())
+                return NotFound("No hay tarjetas disponibles para actualizar.");
+
+            return Ok(updatedCards);
+        }
+
         [HttpPut("{cardId}")]
         public async Task<IActionResult> UpdateCard(int cardId, [FromBody] UpdateCardDTO dto)
         {

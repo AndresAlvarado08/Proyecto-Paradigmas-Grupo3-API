@@ -2,14 +2,18 @@ using Cards_Products_API.Data;
 using Cards_Products_API.Interfaces;
 using Cards_Products_API.Jobs;
 using Cards_Products_API.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Resources;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Logs;
 using Quartz;
 using Quartz.Simpl;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var serviceName = "Main-Database";
+var serviceVersion = "1.0.0";
+var endpoint = new Uri(Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT") ?? "http://otel-collector:4317");
 
 // Obtener el connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -17,6 +21,21 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Registrar DbContext con MySQL
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+// LOGS
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddOpenTelemetry(options =>
+{
+    options.IncludeFormattedMessage = true;
+    options.ParseStateValues = true;
+
+    options.SetResourceBuilder(
+        ResourceBuilder.CreateDefault()
+                       .AddService(serviceName: serviceName, serviceVersion: serviceVersion));
+
+    options.AddOtlpExporter(opt => { opt.Endpoint = endpoint; });
+});
 
 // Agregar servicios
 builder.Services.AddControllers()

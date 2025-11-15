@@ -10,24 +10,26 @@ namespace Cards_Products_API.Jobs
     {
         private readonly AppDbContext _context;
         private readonly RabbitMQService _rabbitMQ;
+        private readonly ILogger _logger;
         private readonly Faker _faker = new();
 
-        public PurchaseJob(AppDbContext context, RabbitMQService rabbitMQ)
+        public PurchaseJob(AppDbContext context, RabbitMQService rabbitMQ, ILogger<PurchaseJob> logger)
         {
             _context = context;
             _rabbitMQ = rabbitMQ;
+            _logger = logger;
         }
 
         public async Task Execute(IJobExecutionContext context)
         {
-            Console.WriteLine("Ejecutando PurchaseJob...");
+            _logger.LogInformation("Ejecutando PurchaseJob...");
 
             var cards = _context.Cards.ToList();
             var products = _context.Products.ToList();
 
             if (!cards.Any() || !products.Any())
             {
-                Console.WriteLine("No hay tarjetas o productos disponibles para realizar compras.");
+                _logger.LogWarning("No hay tarjetas o productos disponibles para realizar compras.");
                 return;
             }
 
@@ -71,11 +73,11 @@ namespace Cards_Products_API.Jobs
                     };
 
                     _context.PurchaseDetails.Add(detail);
-                    Console.WriteLine($"Detalle: Producto={product.Product_Name}, Cantidad={quantity}, Subtotal=${detail.Total}");
+                    _logger.LogInformation($"Detalle: Producto={product.Product_Name}, Cantidad={quantity}, Subtotal=${detail.Total}");
                 }
 
                 await _context.SaveChangesAsync();
-                Console.WriteLine($"Detalles guardados para Purchase_Id={purchase.Purchase_Id}");
+                _logger.LogInformation($"Detalles guardados para Purchase_Id={purchase.Purchase_Id}");
 
                 // ⭐ PUBLICAR A RABBITMQ
                 // Crear objeto con el formato esperado por el Grupo 4
@@ -91,18 +93,16 @@ namespace Cards_Products_API.Jobs
                 try
                 {
                     _rabbitMQ.PublicarCompra(compraParaRabbit);
-                    Console.WriteLine($"Compra publicada a RabbitMQ: Purchase_Id={purchase.Purchase_Id}");
+                    _logger.LogInformation($"Compra publicada a RabbitMQ: Purchase_Id={purchase.Purchase_Id}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error publicando a RabbitMQ: {ex.Message}");
+                    _logger.LogError($"Error publicando a RabbitMQ: {ex.Message}");
                     // No lanzar excepción para no detener el proceso
                 }
-
-                Console.WriteLine();
             }
 
-            Console.WriteLine($"PurchaseJob finalizado correctamente. Total de compras creadas: {totalPurchases}\n");
+            _logger.LogInformation($"PurchaseJob finalizado correctamente. Total de compras creadas: {totalPurchases}\n");
         }
     }
 }
