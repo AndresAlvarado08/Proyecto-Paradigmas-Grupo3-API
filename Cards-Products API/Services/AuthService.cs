@@ -18,11 +18,11 @@ namespace Cards_Products_API.Services
         public async Task<string?> LoginAsync(LoginUserDTO dto)
         {
             // Validar usuario en la base de datos
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Username == dto.Username && u.Password == dto.Password);
+            //var user = await _context.Users
+            //    .FirstOrDefaultAsync(u => u.Username == dto.Username && u.Password == dto.Password);
 
-            if (user == null)
-                return null; // Usuario no encontrado o credenciales incorrectas
+            //if (user == null)
+            //    return null; // Usuario no encontrado o credenciales incorrectas
 
             // Si las credenciales son válidas, obtener el token de Keycloak
             var client = _httpClientFactory.CreateClient();
