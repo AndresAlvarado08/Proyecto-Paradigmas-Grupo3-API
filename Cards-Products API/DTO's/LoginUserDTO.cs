@@ -13,3 +13,4 @@ namespace Cards_Products_API.DTO_s
         public string Password { get; set; } = string.Empty;
     }
 }
+

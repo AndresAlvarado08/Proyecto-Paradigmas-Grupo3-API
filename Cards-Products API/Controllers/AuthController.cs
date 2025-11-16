@@ -1,5 +1,6 @@
 ﻿using Cards_Products_API.DTO_s;
 using Cards_Products_API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cards_Products_API.Controllers
@@ -24,6 +25,13 @@ namespace Cards_Products_API.Controllers
                 return BadRequest("Usuario o contraseña incorrectos.");
 
             return Ok(token);
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("token");
+            return Ok(new { message = "Sesión cerrada correctamente" });
         }
 
         [HttpGet("secure")]
