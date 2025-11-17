@@ -24,7 +24,7 @@ namespace Cards_Products_API.Controllers
             return Ok(details);
         }
 
-        [HttpGet("purchaseDetails/{purchaseId}")]
+        [HttpGet("{purchaseId}")]
         public async Task<IActionResult> GetDetailsByPurchaseId(int purchaseId)
         {
             var details = await _service.GetPurchaseDetailByPurchaseId(purchaseId);

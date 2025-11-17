@@ -11,6 +11,16 @@ using Quartz.Simpl;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//// AGREGAR ESTA CONFIGURACIÓN DE KESTREL
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.Listen(System.Net.IPAddress.Parse("26.74.229.35"), 3000); // HTTP
+//    serverOptions.Listen(System.Net.IPAddress.Parse("26.74.229.35"), 3001, listenOptions => // HTTPS alternativo
+//    {
+//        listenOptions.UseHttps();
+//    });
+//});
+
 var serviceName = "Main-Database";
 var serviceVersion = "1.0.0";
 var endpoint = new Uri(Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT") ?? "http://otel-collector:4317");
@@ -70,7 +80,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = " API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Paradigmas", Version = "v1" });
 
     // Configure Swagger to use JWT Bearer authentication
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -115,7 +125,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173", "https://localhost:5173")
+            .WithOrigins("http://26.140.16.194:5173", "https://26.140.16.194:5173",     // Jhonn
+                         "http://26.130.97.77:5173", "https://26.130.97.77:5173",       // Axel
+                         "http://26.131.211.94:5173", "https://26.131.211.94:5173",     // Ashly
+                         "http://26.129.232.215:5173", "https://26.129.232.215:5173")   // Roshi
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -124,16 +137,15 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    
-    app.UseHttpsRedirection();
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
-    app.UseAuthorization();
 
 app.MapControllers();
 
-    app.Run();
+app.Run();

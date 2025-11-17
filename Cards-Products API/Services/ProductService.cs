@@ -21,6 +21,28 @@ namespace Cards_Products_API.Services
             return await _context.Products.ToListAsync();
         }
 
+        public async Task<PaginacionDTO<Product>> GetAllProductsPaged(int page = 1, int pageSize = 10)
+        {
+            var query = _context.Products.AsQueryable();
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(p => p.Product_Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PaginacionDTO<Product>
+            {
+                Items = items,
+                Total_Items = totalItems,
+                Page = page,
+                Page_Size = pageSize
+            };
+        }
+
+
         public async Task<Product> CreateRandomProducts()
         {
             var Products = new[]
@@ -75,11 +97,8 @@ namespace Cards_Products_API.Services
             var product = await _context.Products.FindAsync(productId);
             if (product == null) return null;
 
-            if (dto.Price.HasValue)
-                product.Price = dto.Price.Value;
-
             if (dto.Quantity.HasValue)
-                product.Quantity = dto.Quantity.Value;
+                product.Quantity = product.Quantity + dto.Quantity.Value;
 
             await _context.SaveChangesAsync();
             return product;

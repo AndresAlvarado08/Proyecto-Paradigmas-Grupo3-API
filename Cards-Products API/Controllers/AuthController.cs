@@ -22,7 +22,7 @@ namespace Cards_Products_API.Controllers
             var token = await _authService.LoginAsync(dto);
 
             if (token == null)
-                return BadRequest("Usuario o contraseña incorrectos.");
+                return BadRequest("Email o contraseña incorrectos.");
 
             return Ok(token);
         }

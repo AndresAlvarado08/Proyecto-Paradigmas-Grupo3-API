@@ -1,6 +1,8 @@
 ﻿using Cards_Products_API.Data;
 using Cards_Products_API.DTO_s;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Cards_Products_API.Services
 {
@@ -17,14 +19,6 @@ namespace Cards_Products_API.Services
 
         public async Task<string?> LoginAsync(LoginUserDTO dto)
         {
-            // Validar usuario en la base de datos
-            //var user = await _context.Users
-            //    .FirstOrDefaultAsync(u => u.Username == dto.Username && u.Password == dto.Password);
-
-            //if (user == null)
-            //    return null; // Usuario no encontrado o credenciales incorrectas
-
-            // Si las credenciales son válidas, obtener el token de Keycloak
             var client = _httpClientFactory.CreateClient();
 
             var tokenEndpoint = "http://26.9.80.46:8080/realms/Paradigmas/protocol/openid-connect/token";
@@ -34,7 +28,7 @@ namespace Cards_Products_API.Services
                 new KeyValuePair<string, string>("grant_type", "password"),
                 new KeyValuePair<string, string>("client_id", "payment-api"),
                 new KeyValuePair<string, string>("client_secret", "9BvHuKBrIsBLRPwcSKkbXOD0x4LRiPt8"),
-                new KeyValuePair<string, string>("username", dto.Username ?? ""),
+                new KeyValuePair<string, string>("username", dto.Email ?? ""),
                 new KeyValuePair<string, string>("password", dto.Password ?? "")
             });
 
@@ -43,7 +37,19 @@ namespace Cards_Products_API.Services
             if (!response.IsSuccessStatusCode)
                 throw new Exception("Error al solicitar el token en Keycloak.");
 
-            return await response.Content.ReadAsStringAsync();
+            var json = await response.Content.ReadAsStringAsync();
+
+            // Deserializar la respuesta
+            var tokenResponse = JsonSerializer.Deserialize<TokenResponse>(json);
+
+            return tokenResponse?.AccessToken;
+        }
+
+        // Clase para mapear solo lo necesario
+        public class TokenResponse
+        {
+            [JsonPropertyName("access_token")]
+            public string? AccessToken { get; set; }
         }
     }
 }

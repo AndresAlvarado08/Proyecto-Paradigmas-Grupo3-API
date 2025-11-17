@@ -23,6 +23,13 @@ namespace Cards_Products_API.Controllers
             return Ok(cards);
         }
 
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPagedCards([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _cardService.GetAllCardsPaged(page, pageSize);
+            return Ok(result);
+        }
+
         [HttpPost("increase-money")]
         public async Task<IActionResult> IncreaseCardMoney()
         {

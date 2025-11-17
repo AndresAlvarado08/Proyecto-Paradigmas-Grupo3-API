@@ -19,6 +19,28 @@ public class CardService : ICardService
         return await _context.Cards.ToListAsync();
     }
 
+    public async Task<PaginacionDTO<Card>> GetAllCardsPaged(int page = 1, int pageSize = 10)
+    {
+        var query = _context.Cards.AsQueryable();
+
+        var totalItems = await query.CountAsync();
+
+        var items = await query
+            .OrderBy(c => c.Card_Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PaginacionDTO<Card>
+        {
+            Items = items,
+            Total_Items = totalItems,
+            Page = page,
+            Page_Size = pageSize
+        };
+    }
+
+
     public async Task<Card> CreateRandomCard(double probabilityExpired = 0.35, bool formatWithSpaces = true)
     {
         var cardTypes = new[] { "Visa", "MasterCard", "American Express", "Discover" };

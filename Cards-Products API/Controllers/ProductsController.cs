@@ -23,7 +23,14 @@ namespace Cards_Products_API.Controllers
             return Ok(products);
         }
 
-        [HttpPut("{productId}")]
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPagedProducts([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _productService.GetAllProductsPaged(page, pageSize);
+            return Ok(result);
+        }
+
+        [HttpPatch("{productId}")]
         public async Task<IActionResult> UpdateProduct(int productId, [FromBody] UpdateProductDTO dto)
         {
             var updatedProduct = await _productService.UpdateProduct(productId, dto);
