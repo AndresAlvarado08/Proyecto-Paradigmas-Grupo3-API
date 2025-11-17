@@ -23,25 +23,36 @@ namespace Cards_Products_API.Services
 
         public async Task<PaginacionDTO<Product>> GetAllProductsPaged(int page = 1, int pageSize = 10)
         {
-            var query = _context.Products.AsQueryable();
-
-            var totalItems = await query.CountAsync();
-
-            var items = await query
-                .OrderBy(p => p.Product_Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return new PaginacionDTO<Product>
+            try
             {
-                Items = items,
-                Total_Items = totalItems,
-                Page = page,
-                Page_Size = pageSize
-            };
-        }
+                // Total de registros
+                var totalRecords = await _context.Products.CountAsync();
 
+                // Total de páginas
+                var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+
+                // Datos paginados
+                var products = await _context.Products
+                    .OrderBy(p => p.Product_Id)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                return new PaginacionDTO<Product>
+                {
+                    Total_Records = totalRecords,
+                    Total_Pages = totalPages,
+                    Page = page,
+                    Page_Size = pageSize,
+                    Items = products
+                };
+            }
+            catch (Exception ex)
+            {
+                // puedes loguear si quieres
+                throw;
+            }
+        }
 
         public async Task<Product> CreateRandomProducts()
         {
@@ -65,7 +76,7 @@ namespace Cards_Products_API.Services
             if (existingProduct != null)
             {
                 // Si ya existe, aumentar su cantidad de forma aleatoria
-                int addedQuantity = faker.Random.Int(10, 25);
+                int addedQuantity = faker.Random.Int(15, 30);
                 existingProduct.Quantity += addedQuantity;
 
                 _context.Products.Update(existingProduct);
@@ -80,7 +91,7 @@ namespace Cards_Products_API.Services
             var newProduct = new Product
             {
                 Product_Name = randomName,
-                Quantity = faker.Random.Int(20, 50),
+                Quantity = faker.Random.Int(30, 60),
                 Price = faker.Random.Int(15000, 50000)
             };
 
