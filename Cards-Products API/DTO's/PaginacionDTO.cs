@@ -8,5 +8,4 @@
         public int Page_Size { get; set; }
         public List<T> Items { get; set; } = new();
     }
-
 }

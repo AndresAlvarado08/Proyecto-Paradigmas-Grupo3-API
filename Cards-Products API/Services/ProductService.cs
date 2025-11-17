@@ -49,7 +49,6 @@ namespace Cards_Products_API.Services
             }
             catch (Exception ex)
             {
-                // puedes loguear si quieres
                 throw;
             }
         }
