@@ -19,6 +19,24 @@ namespace Cards_Products_API.Controllers
             _rabbitMQ = rabbitMQ;  // ← Inicializar
         }
 
+        [HttpPost("GenerateUsers")]
+        public async Task<IActionResult> RunGenerateUsersJob()
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+            var jobKey = new JobKey("GenerateUsersJob");
+
+            if (!await scheduler.CheckExists(jobKey))
+                return NotFound("Job no registrado");
+
+            var trigger = TriggerBuilder.Create()
+                .ForJob(jobKey)
+                .StartNow()
+                .Build();
+
+            await scheduler.ScheduleJob(trigger);
+
+            return Ok("GenerateUsersJob disparado!");
+        }
 
         [HttpPost("generateData")]
         public async Task<IActionResult> RunGenerateDataJob()

@@ -60,7 +60,6 @@ builder.Services.AddScoped<PurchaseDetailJob>();
 // HttpClient para Keycloak
 builder.Services.AddHttpClient();
 
-
 // AUTENTICACIÓN Y AUTORIZACIÓN JWT (KEYCLOAK)
 builder.Services.AddAuthentication(options =>
 {
@@ -118,6 +117,7 @@ builder.Services.AddQuartz(q =>
 
     q.AddJob<GenerateDataJob>(opts => opts.WithIdentity("GenerateDataJob").StoreDurably());
     q.AddJob<PurchaseJob>(opts => opts.WithIdentity("PurchaseJob").StoreDurably());
+    q.AddJob<GenerateUsersJob>(opts => opts.WithIdentity("GenerateUsersJob").StoreDurably());
 });
 
 builder.Services.AddQuartzHostedService(opt =>

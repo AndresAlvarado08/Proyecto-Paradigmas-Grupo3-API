@@ -23,10 +23,18 @@ namespace Cards_Products_API.Data
                 .HasForeignKey(p => p.Card_Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Card>()
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.User_Id);
+
             modelBuilder.Entity<Purchase>()
                 .HasMany(p => p.PurchaseDetails)
                 .WithOne(d => d.Purchase)
                 .HasForeignKey(d => d.Purchase_Id);
+
+            modelBuilder.Entity<Card>()
+                .Ignore(c => c.User);
 
             modelBuilder.Entity<Purchase>()
                 .HasKey(p => p.Purchase_Id);

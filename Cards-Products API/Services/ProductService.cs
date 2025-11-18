@@ -2,8 +2,8 @@
 using Cards_Products_API.Data;
 using Cards_Products_API.Models;
 using Microsoft.EntityFrameworkCore;
-using Bogus;
 using Cards_Products_API.DTO_s;
+using Bogus;
 
 namespace Cards_Products_API.Services
 {
