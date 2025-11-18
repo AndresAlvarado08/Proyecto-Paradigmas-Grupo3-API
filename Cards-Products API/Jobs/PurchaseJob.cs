@@ -1,6 +1,7 @@
 ﻿using Cards_Products_API.Data;
 using Cards_Products_API.Models;
 using Cards_Products_API.Services;
+using System.Diagnostics;
 using Quartz;
 using Bogus;
 
@@ -33,19 +34,49 @@ namespace Cards_Products_API.Jobs
                 return;
             }
 
-            // Generar entre 1 y 5 compras
-            int totalPurchases = _faker.Random.Int(2, 4);
+            var activity = new Activity("PurchaseJobExecution");
+            activity.Start(); // ⬅️ Inicia telemetría
+
+            int totalPurchases = 1; //_faker.Random.Int(1, 2);
 
             for (int i = 0; i < totalPurchases; i++)
             {
                 var card = _faker.PickRandom(cards);
-                var numProducts = _faker.Random.Int(2, 3);
+                var numProducts = 1; //_faker.Random.Int(1, 2);
                 var selectedProducts = _faker.PickRandom(products, numProducts);
 
-                // Calcular subtotal de la compra
+                // Validar stock ANTES de crear la compra
+                foreach (var product in selectedProducts)
+                {
+                    int neededQty = _faker.Random.Int(1, 5);
+
+                    if (product.Quantity < neededQty)
+                    {
+                        string msg =
+                            $"COMPRA CANCELADA | Stock insuficiente para Product_Id = {product.Product_Id} ({product.Product_Name}). " +
+                            $"Disponible = {product.Quantity}, Requerido={neededQty}\n";
+
+                        Console.WriteLine(msg);
+                        _logger.LogWarning(msg);
+
+                        // Registrar evento en OpenTelemetry
+                        activity?.AddEvent(new ActivityEvent("StockInsuficiente", tags: new ActivityTagsCollection
+                        {
+                            { "product_id", product.Product_Id },
+                            { "product_name", product.Product_Name },
+                            { "available_stock", product.Quantity },
+                            { "requested_quantity", neededQty },
+                            { "message", "Compra cancelada por stock insuficiente" }
+                        }));
+
+                        // NO publicar a RabbitMQ — simplemente continuar con siguiente compra
+                        goto CompraCancelada;
+                    }
+                }
+
+                // Si hay suficiente stock para todos → crear la compra
                 int subtotal = selectedProducts.Sum(p => p.Price);
 
-                // Crear la compra en la base de datos
                 var purchase = new Purchase
                 {
                     Card_Id = card.Card_Id,
@@ -57,12 +88,12 @@ namespace Cards_Products_API.Jobs
                 _context.Purchases.Add(purchase);
                 await _context.SaveChangesAsync();
 
-                Console.WriteLine($"Compra creada en BD: Purchase_Id = {purchase.Purchase_Id}, SubTotal = ${subtotal}");
+                _logger.LogInformation($"Compra creada Purchase_Id = {purchase.Purchase_Id}\n\n");
 
-                // Crear detalles para cada producto comprado
+                // Crear detalles y restar stock
                 foreach (var product in selectedProducts)
                 {
-                    int quantity = _faker.Random.Int(1, 5);
+                    int quantity = _faker.Random.Int(5, 10);
 
                     var detail = new PurchaseDetail
                     {
@@ -73,36 +104,45 @@ namespace Cards_Products_API.Jobs
                     };
 
                     _context.PurchaseDetails.Add(detail);
-                    _logger.LogInformation($"Detalle: Producto={product.Product_Name}, Cantidad = {quantity}, Subtotal = ${detail.Total}");
+
+                    // Restar stock
+                    product.Quantity -= quantity;
+
+                    _logger.LogInformation(
+                        $"Detalle creado: {product.Product_Name}, Cantidad = {quantity}, NuevoStock = {product.Quantity}\n\n");
                 }
 
                 await _context.SaveChangesAsync();
-                _logger.LogInformation($"Detalles guardados para Purchase_Id = {purchase.Purchase_Id}");
 
-                // ⭐ PUBLICAR A RABBITMQ
-                // Crear objeto con el formato esperado por el Grupo 4
-                var compraParaRabbit = new
-                {
-                    purchase_Id = purchase.Purchase_Id,
-                    card_Id = purchase.Card_Id,
-                    total = purchase.SubTotal,
-                    purchaseDate = purchase.Purchase_Date,
-                    user_Id = card.User_Id  // Asumiendo que Card tiene User_Id
-                };
-
+                // ENVIAR A RABBIT SOLO SI TODO FUE EXITOSO
                 try
                 {
-                    _rabbitMQ.PublicarCompra(compraParaRabbit);
-                    _logger.LogInformation($"Compra publicada a RabbitMQ: Purchase_Id = {purchase.Purchase_Id}");
+                    var mensajeRabbit = new
+                    {
+                        purchase_Id = purchase.Purchase_Id,
+                        card_Id = purchase.Card_Id,
+                        total = purchase.SubTotal,
+                        purchaseDate = purchase.Purchase_Date,
+                        user_Id = purchase.User_Id
+                    };
+
+                    _rabbitMQ.PublicarCompra(mensajeRabbit);
+                    _logger.LogInformation($"Compra publicada en RabbitMQ ID = {purchase.Purchase_Id}\n");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error publicando a RabbitMQ: {ex.Message}");
-                    // No lanzar excepción para no detener el proceso
+                    _logger.LogError($"Error enviando a RabbitMQ: {ex.Message}\n");
                 }
+
+                continue;
+
+            // Etiqueta para saltar cuando una compra se cancela
+            CompraCancelada:
+                continue;
             }
 
-            _logger.LogInformation($"PurchaseJob finalizado correctamente. Total de compras creadas: {totalPurchases}\n");
+            _logger.LogInformation("PurchaseJob Finalizado con exito\n");
+            activity?.Stop();
         }
     }
 }
