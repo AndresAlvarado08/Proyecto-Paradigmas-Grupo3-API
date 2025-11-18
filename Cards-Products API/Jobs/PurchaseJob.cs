@@ -34,12 +34,12 @@ namespace Cards_Products_API.Jobs
             }
 
             // Generar entre 1 y 5 compras
-            int totalPurchases = _faker.Random.Int(1, 2);
+            int totalPurchases = _faker.Random.Int(2, 4);
 
             for (int i = 0; i < totalPurchases; i++)
             {
                 var card = _faker.PickRandom(cards);
-                var numProducts = _faker.Random.Int(1, 2);
+                var numProducts = _faker.Random.Int(2, 3);
                 var selectedProducts = _faker.PickRandom(products, numProducts);
 
                 // Calcular subtotal de la compra
@@ -57,7 +57,7 @@ namespace Cards_Products_API.Jobs
                 _context.Purchases.Add(purchase);
                 await _context.SaveChangesAsync();
 
-                Console.WriteLine($"Compra creada en BD: Purchase_Id={purchase.Purchase_Id}, SubTotal=${subtotal}");
+                Console.WriteLine($"Compra creada en BD: Purchase_Id = {purchase.Purchase_Id}, SubTotal = ${subtotal}");
 
                 // Crear detalles para cada producto comprado
                 foreach (var product in selectedProducts)
@@ -73,11 +73,11 @@ namespace Cards_Products_API.Jobs
                     };
 
                     _context.PurchaseDetails.Add(detail);
-                    _logger.LogInformation($"Detalle: Producto={product.Product_Name}, Cantidad={quantity}, Subtotal=${detail.Total}");
+                    _logger.LogInformation($"Detalle: Producto={product.Product_Name}, Cantidad = {quantity}, Subtotal = ${detail.Total}");
                 }
 
                 await _context.SaveChangesAsync();
-                _logger.LogInformation($"Detalles guardados para Purchase_Id={purchase.Purchase_Id}");
+                _logger.LogInformation($"Detalles guardados para Purchase_Id = {purchase.Purchase_Id}");
 
                 // ⭐ PUBLICAR A RABBITMQ
                 // Crear objeto con el formato esperado por el Grupo 4
@@ -93,7 +93,7 @@ namespace Cards_Products_API.Jobs
                 try
                 {
                     _rabbitMQ.PublicarCompra(compraParaRabbit);
-                    _logger.LogInformation($"Compra publicada a RabbitMQ: Purchase_Id={purchase.Purchase_Id}");
+                    _logger.LogInformation($"Compra publicada a RabbitMQ: Purchase_Id = {purchase.Purchase_Id}");
                 }
                 catch (Exception ex)
                 {
