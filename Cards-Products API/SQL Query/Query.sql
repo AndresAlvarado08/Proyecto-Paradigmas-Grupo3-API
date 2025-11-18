@@ -11,6 +11,12 @@ flush privileges;
 
 use cards_products;
 
-select * from products;
+select * from users;
 
 select * from cards;
+
+select * from products;
+
+select * from purchases;
+
+select * from purchasedetails;

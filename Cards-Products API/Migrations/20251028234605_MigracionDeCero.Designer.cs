@@ -4,6 +4,7 @@ using Cards_Products_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cards_Products_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251028234605_MigracionDeCero")]
+    partial class MigracionDeCero
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.14")
+                .HasAnnotation("ProductVersion", "9.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
@@ -38,8 +41,8 @@ namespace Cards_Products_API.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateOnly>("Expiration_Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Expiration_Date")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("Money")
                         .HasColumnType("int");
@@ -47,7 +50,12 @@ namespace Cards_Products_API.Migrations
                     b.Property<int>("User_Id")
                         .HasColumnType("int");
 
+                    b.Property<int>("User_Id1")
+                        .HasColumnType("int");
+
                     b.HasKey("Card_Id");
+
+                    b.HasIndex("User_Id1");
 
                     b.ToTable("Cards");
                 });
@@ -86,8 +94,8 @@ namespace Cards_Products_API.Migrations
                     b.Property<int>("Card_Id")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("Purchase_Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Purchase_Date")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("SubTotal")
                         .HasColumnType("int");
@@ -118,8 +126,8 @@ namespace Cards_Products_API.Migrations
                     b.Property<int>("Product_Id")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("Purchase_Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Purchase_Date")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("Purchase_Id")
                         .HasColumnType("int");
@@ -172,6 +180,17 @@ namespace Cards_Products_API.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Cards_Products_API.Models.Card", b =>
+                {
+                    b.HasOne("Cards_Products_API.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("User_Id1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Cards_Products_API.Models.Purchase", b =>
                 {
                     b.HasOne("Cards_Products_API.Models.Card", "Card")
@@ -180,11 +199,13 @@ namespace Cards_Products_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Cards_Products_API.Models.User", null)
+                    b.HasOne("Cards_Products_API.Models.User", "User")
                         .WithMany("Purchases")
                         .HasForeignKey("User_Id1");
 
                     b.Navigation("Card");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Cards_Products_API.Models.PurchaseDetail", b =>

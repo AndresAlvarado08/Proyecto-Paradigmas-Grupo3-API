@@ -4,6 +4,7 @@ using Cards_Products_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cards_Products_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251029001253_UsuariosQuemados")]
+    partial class UsuariosQuemados
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.14")
+                .HasAnnotation("ProductVersion", "9.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
@@ -38,8 +41,8 @@ namespace Cards_Products_API.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateOnly>("Expiration_Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Expiration_Date")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("Money")
                         .HasColumnType("int");
@@ -86,8 +89,8 @@ namespace Cards_Products_API.Migrations
                     b.Property<int>("Card_Id")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("Purchase_Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Purchase_Date")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("SubTotal")
                         .HasColumnType("int");
@@ -118,8 +121,8 @@ namespace Cards_Products_API.Migrations
                     b.Property<int>("Product_Id")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("Purchase_Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Purchase_Date")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("Purchase_Id")
                         .HasColumnType("int");
