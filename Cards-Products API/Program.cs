@@ -8,18 +8,9 @@ using Microsoft.OpenApi.Models;
 using OpenTelemetry.Logs;
 using Quartz;
 using Quartz.Simpl;
+using Microsoft.AspNetCore.Authentication.JwtBearer; // <-- AGREGADO (import necesario)
 
 var builder = WebApplication.CreateBuilder(args);
-
-//// AGREGAR ESTA CONFIGURACIÓN DE KESTREL
-//builder.WebHost.ConfigureKestrel(serverOptions =>
-//{
-//    serverOptions.Listen(System.Net.IPAddress.Parse("26.74.229.35"), 3000); // HTTP
-//    serverOptions.Listen(System.Net.IPAddress.Parse("26.74.229.35"), 3001, listenOptions => // HTTPS alternativo
-//    {
-//        listenOptions.UseHttps();
-//    });
-//});
 
 var serviceName = "Main-Database";
 var serviceVersion = "1.0.0";
@@ -53,8 +44,10 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.Converters.Add(new ConvertDateOnly());
     });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddSingleton<RabbitMQService>();
 builder.Services.AddScoped<IPurchaseDetailService, PurchaseDetailService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
@@ -64,49 +57,61 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<PurchaseDetailJob>();
 
-//Configuracion de Keycloak
+// HttpClient para Keycloak
 builder.Services.AddHttpClient();
 
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer(options =>
-    {
-        options.MetadataAddress = "http://26.9.80.46:8080/realms/Paradigmas/.well-known/openid-configuration";
-        options.Authority = "http://26.9.80.46:8080/realms/Paradigmas";
-        options.Audience = "payment-api";
-        options.RequireHttpsMetadata = false;
-    });
+
+// AUTENTICACIÓN Y AUTORIZACIÓN JWT (KEYCLOAK)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    // URL del realm (importante)
+    options.MetadataAddress = "http://26.9.80.46:8080/realms/Paradigmas/.well-known/openid-configuration";
+    options.Authority = "http://26.9.80.46:8080/realms/Paradigmas";
+
+    // El client-id configurado en Keycloak
+    options.Audience = "payment-api";
+
+    options.RequireHttpsMetadata = false; // desarrollo
+
+    // Extra recommended configurations
+    options.TokenValidationParameters.ValidateAudience = false; // Keycloak suele no validar audience estrictamente
+});
 
 builder.Services.AddAuthorization();
 
+// Swagger: Añadir soporte para JWT Bearer
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Paradigmas", Version = "v1" });
 
-    // Configure Swagger to use JWT Bearer authentication
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Description = "JWT Authorization header usando el esquema Bearer.\nEjemplo: \"Authorization: Bearer {token}\"",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey
     });
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-            {
-                new OpenApiSecurityScheme
-                {
-                    Reference = new OpenApiReference
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = "Bearer"
-                    }
-                },
-                Array.Empty<string>()
+    {
+        {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
-        });
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
-// Quartz Job
+// Quartz Jobs
 builder.Services.AddQuartz(q =>
 {
     q.UseJobFactory<MicrosoftDependencyInjectionJobFactory>();
@@ -120,15 +125,16 @@ builder.Services.AddQuartzHostedService(opt =>
     opt.WaitForJobsToComplete = true;
 });
 
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins("http://26.140.16.194:5173", "https://26.140.16.194:5173",     // Jhonn
-                         "http://26.130.97.77:5173", "https://26.130.97.77:5173",       // Axel
-                         "http://26.131.211.94:5173", "https://26.131.211.94:5173",     // Ashly
-                         "http://26.129.232.215:5173", "https://26.129.232.215:5173")   // Roshi
+            .WithOrigins("http://26.140.16.194:5173", "https://26.140.16.194:5173",
+                         "http://26.130.97.77:5173", "https://26.130.97.77:5173",
+                         "http://26.131.211.94:5173", "https://26.131.211.94:5173",
+                         "http://26.129.232.215:5173", "https://26.129.232.215:5173")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -144,6 +150,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

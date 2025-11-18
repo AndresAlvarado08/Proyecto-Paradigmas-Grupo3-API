@@ -1,12 +1,14 @@
 ﻿using Cards_Products_API.DTO_s;
 using Cards_Products_API.Interfaces;
 using Cards_Products_API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cards_Products_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CardsController : ControllerBase
     {
         private readonly ICardService _cardService;
@@ -16,6 +18,7 @@ namespace Cards_Products_API.Controllers
             _cardService = cardService;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Card>>> GetAll()
         {
@@ -23,6 +26,7 @@ namespace Cards_Products_API.Controllers
             return Ok(cards);
         }
 
+        [Authorize]
         [HttpGet("paged")]
         public async Task<IActionResult> GetPagedCards([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
@@ -41,6 +45,7 @@ namespace Cards_Products_API.Controllers
             return Ok(updatedCards);
         }
 
+        [Authorize]
         [HttpPut("{cardId}")]
         public async Task<IActionResult> UpdateCard(int cardId, [FromBody] UpdateCardDTO dto)
         {
