@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cards_Products_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251111042636_DateOnly")]
-    partial class DateOnly
+    [Migration("20251118192550_deNuevo")]
+    partial class deNuevo
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,6 +51,8 @@ namespace Cards_Products_API.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Card_Id");
+
+                    b.HasIndex("User_Id");
 
                     b.ToTable("Cards");
                 });
@@ -98,14 +100,9 @@ namespace Cards_Products_API.Migrations
                     b.Property<int>("User_Id")
                         .HasColumnType("int");
 
-                    b.Property<int?>("User_Id1")
-                        .HasColumnType("int");
-
                     b.HasKey("Purchase_Id");
 
                     b.HasIndex("Card_Id");
-
-                    b.HasIndex("User_Id1");
 
                     b.ToTable("Purchases");
                 });
@@ -162,17 +159,20 @@ namespace Cards_Products_API.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.HasKey("User_Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Cards_Products_API.Models.Card", b =>
+                {
+                    b.HasOne("Cards_Products_API.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("User_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Cards_Products_API.Models.Purchase", b =>
@@ -182,10 +182,6 @@ namespace Cards_Products_API.Migrations
                         .HasForeignKey("Card_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Cards_Products_API.Models.User", null)
-                        .WithMany("Purchases")
-                        .HasForeignKey("User_Id1");
 
                     b.Navigation("Card");
                 });
@@ -212,11 +208,6 @@ namespace Cards_Products_API.Migrations
             modelBuilder.Entity("Cards_Products_API.Models.Purchase", b =>
                 {
                     b.Navigation("PurchaseDetails");
-                });
-
-            modelBuilder.Entity("Cards_Products_API.Models.User", b =>
-                {
-                    b.Navigation("Purchases");
                 });
 #pragma warning restore 612, 618
         }

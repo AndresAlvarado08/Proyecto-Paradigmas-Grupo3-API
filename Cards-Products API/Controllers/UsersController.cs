@@ -1,4 +1,5 @@
 ﻿using Cards_Products_API.DTO_s;
+using Cards_Products_API.Interfaces;
 using Cards_Products_API.Models;
 using Cards_Products_API.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -23,14 +24,11 @@ namespace Cards_Products_API.Controllers
             return Ok(users);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateUserDTO dto)
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPagedUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var created = await _userService.CreateUser(dto);
-            return CreatedAtAction(nameof(GetAll), new { id = created.User_Id }, created);
+            var result = await _userService.GetPagedUsers(page, pageSize);
+            return Ok(result);
         }
     }
 }

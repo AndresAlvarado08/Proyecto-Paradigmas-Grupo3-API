@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Cards_Products_API.Migrations
 {
     /// <inheritdoc />
-    public partial class MigracionDeCero : Migration
+    public partial class deNuevo : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -38,15 +38,11 @@ namespace Cards_Products_API.Migrations
                 {
                     User_Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Username = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
                     First_Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Last_Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Email = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Password = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -62,20 +58,19 @@ namespace Cards_Products_API.Migrations
                     Card_Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     User_Id = table.Column<int>(type: "int", nullable: false),
-                    User_Id1 = table.Column<int>(type: "int", nullable: false),
                     Card_Type = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Card_Number = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Money = table.Column<int>(type: "int", nullable: false),
-                    Expiration_Date = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    Expiration_Date = table.Column<DateOnly>(type: "date", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Cards", x => x.Card_Id);
                     table.ForeignKey(
-                        name: "FK_Cards_Users_User_Id1",
-                        column: x => x.User_Id1,
+                        name: "FK_Cards_Users_User_Id",
+                        column: x => x.User_Id,
                         principalTable: "Users",
                         principalColumn: "User_Id",
                         onDelete: ReferentialAction.Cascade);
@@ -90,9 +85,8 @@ namespace Cards_Products_API.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Card_Id = table.Column<int>(type: "int", nullable: false),
                     User_Id = table.Column<int>(type: "int", nullable: false),
-                    User_Id1 = table.Column<int>(type: "int", nullable: true),
                     SubTotal = table.Column<int>(type: "int", nullable: false),
-                    Purchase_Date = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    Purchase_Date = table.Column<DateOnly>(type: "date", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -103,11 +97,6 @@ namespace Cards_Products_API.Migrations
                         principalTable: "Cards",
                         principalColumn: "Card_Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Purchases_Users_User_Id1",
-                        column: x => x.User_Id1,
-                        principalTable: "Users",
-                        principalColumn: "User_Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -121,7 +110,7 @@ namespace Cards_Products_API.Migrations
                     Product_Id = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Total = table.Column<int>(type: "int", nullable: false),
-                    Purchase_Date = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                    Purchase_Date = table.Column<DateOnly>(type: "date", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -142,9 +131,9 @@ namespace Cards_Products_API.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cards_User_Id1",
+                name: "IX_Cards_User_Id",
                 table: "Cards",
-                column: "User_Id1");
+                column: "User_Id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PurchaseDetails_Product_Id",
@@ -160,11 +149,6 @@ namespace Cards_Products_API.Migrations
                 name: "IX_Purchases_Card_Id",
                 table: "Purchases",
                 column: "Card_Id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Purchases_User_Id1",
-                table: "Purchases",
-                column: "User_Id1");
         }
 
         /// <inheritdoc />

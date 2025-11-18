@@ -54,6 +54,7 @@ public class CardService : ICardService
     public async Task<Card> CreateRandomCard(double probabilityExpired = 0.35, bool formatWithSpaces = true)
     {
         var cardTypes = new[] { "Visa", "MasterCard", "American Express", "Discover" };
+        var users = await _context.Users.ToListAsync();
         var faker = new Faker();
 
         var cardType = faker.PickRandom(cardTypes);
@@ -64,11 +65,16 @@ public class CardService : ICardService
         var expired = faker.Random.Double() < probabilityExpired; // true => generar vencida
         var expiration = GenerateExpirationDate(expired, faker);
 
+        if (users == null || !users.Any())
+        {
+            throw new InvalidOperationException("No hay usuarios disponibles para asignar la tarjeta.");
+        }
+
         var card = new Card
         {
             Card_Type = cardType,
             Card_Number = formattedNumber,
-            User_Id = 1,        // Cambiar a relacion en el futuro
+            User_Id = faker.PickRandom(users).User_Id,
             Money = moneyValue,
             Expiration_Date = expiration
         };
@@ -95,7 +101,7 @@ public class CardService : ICardService
             for (int i = 51; i <= 55; i++) prefixes.Add(i.ToString());
             // 2221-2720 (agregamos como rango dinámico, no llenamos lista completa)
             // Para MasterCard, elegimos aleatoriamente entre 51-55 o 2221-2720:
-            bool chooseOldRange = faker.Random.Bool(); // 50/50, se puede ajustar
+            bool chooseOldRange = faker.Random.Bool(); // 50/50
             if (chooseOldRange)
             {
                 return GenerateNumberWithPrefixAndLength(prefixes.ToArray(), 16, faker);
@@ -109,7 +115,7 @@ public class CardService : ICardService
 
         if (cardType == "American Express" || cardType == "AmEx" || cardType == "Amex")
         {
-            // AmEx: 34 o 37, longitud 15
+            // American Express: 34 o 37, longitud 15
             return GenerateNumberWithPrefixAndLength(new[] { "34", "37" }, 15, faker);
         }
 
