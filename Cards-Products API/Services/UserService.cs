@@ -70,7 +70,7 @@ namespace Cards_Products_API.Services
             var _random = new Random();
             var first = FirstNames[_random.Next(FirstNames.Length)];
             var last = LastNames[_random.Next(LastNames.Length)];
-            var email = $"{first.ToLower()}.{last.ToLower()}{_random.Next(100, 150)}@gmail.com";
+            var email = $"{first.ToLower()}.{last.ToLower()}{_random.Next(100, 500)}@gmail.com";
 
             var user = new User
             {
